@@ -23,18 +23,19 @@
                     <li class="nav-item">
                         <a class="nav-link active" aria-current="page" href="{% url 'polls:index' %}">Polls</a>
                     </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="{% url 'SL:common' page_number=1 %}">Solo_Leveling</a>
-                    </li>
-                    {% endblock}
+                    {% endcomment %} 
 
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'English:common' page_number=1 %}">English</a>
+                    </li>
+                    
                     {% block navbar_addition %}{% endblock %}
                     
                     {% comment %}
                     <li class="nav-item ms-auto"> <!-- ms-auto на li для вирівнювання -->
                         <a class="nav-link text-danger" href="{% url 'Auth_R_F:logout' %}">Logout</a>
                     </li>
-                    {% endblock}
+                    {% endcomment %}
                 </ul>
             </div>
         </div>

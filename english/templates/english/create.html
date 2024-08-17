@@ -1,0 +1,45 @@
+{% extends 'base.html' %}
+
+{% block head_addition %} 
+{% endblock %}
+
+{% block content %}
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'style.css' %}">
+
+    <form method="post" class="decor">
+        {% csrf_token %}
+        <div class="form-left-decoration"></div>
+        <div class="form-right-decoration"></div>
+        <div class="circle"></div>
+        <div class="form-inner">
+            <h3>Create post</h3>
+           
+            {% if name_error %}
+                <div class="alert alert-warning alert-dismissible fade show" role="alert">
+                    <strong>Name is required!</strong> {{name_error}}.
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            {% endif %}            
+            <input type="name" name = 'name' placeholder="Name of task" value="{{form_data.name}}">
+
+            {% if comment_error %}
+                <div class="alert alert-warning alert-dismissible fade show" role="alert">
+                    <strong>Comment is required!</strong> {{comment_error}}.
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            {% endif %}
+            <input type="comment" name = "comment" placeholder="Write comment" value="{{form_data.comment}}">
+
+            {% if sentence_error %}
+                <div class="alert alert-warning alert-dismissible fade show" role="alert">
+                    <strong>Sentence is required!</strong> {{sentence_error}}.
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            {% endif %}
+            <textarea id="text_area" name = "sentence" placeholder="Sentence..." rows="3" >{{form_data.sentence}}</textarea>
+            <input type="submit" value="Send">
+            
+        </div>
+    </form>
+{% endblock %}

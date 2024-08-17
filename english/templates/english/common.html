@@ -1,0 +1,63 @@
+{% extends 'base.html' %}
+
+
+{% block navbar_addition %}
+    <a href="{% url 'English:create' %}" type="button" class="btn btn-dark">Create</a>
+{% endblock %}
+
+
+{% block content %}
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'pagination.css' %}">
+    {% if messages %}
+            <div class="alert alert-info" role="alert">
+                {% for message in messages %}
+                    {{ message }}
+                {% endfor %}
+            </div>
+    {% endif %}
+    
+
+    {% for page_obj in page %}
+        <div class="card text-bg-dark">
+            <svg class="bd-placeholder-img bd-placeholder-img-lg card-img" width="100%" height="270" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Placeholder: Card image" preserveAspectRatio="xMidYMid slice" focusable="false"><title>Placeholder</title><rect width="100%" height="100%" fill="#868e96"></rect><text x="50%" y="50%" fill="#dee2e6" dy=".3em">{{page_obj.name}}</text></svg>
+            <div class="card-img-overlay">
+                <p class="card-text">{{page_obj.sentence}}</p>
+                <p class="card-text"><small>{{page_obj.publish_date}}</small></p>
+            </div>
+        </div>
+    {% endfor %}
+
+    <div class="pagination">
+        <a href="#">&laquo;</a>
+        <a href="#">1</a>
+        <a href="#">2</a>
+        <a href="#">3</a>
+        <a href="#" class="active">4</a>
+        <a href="#">5</a>
+        <a href="#">6</a>
+        <a href="#">7</a>
+        <a href="#">&raquo;</a>
+    </div>
+    <script>
+        let lastScrollTop = 0; // Змінна для зберігання останньої позиції прокрутки
+    
+        window.addEventListener("scroll", function() {
+            let currentScroll = window.pageYOffset || document.documentElement.scrollTop;
+    
+            // Перевіряємо напрямок прокручування
+            if (currentScroll > lastScrollTop) {
+                // Прокрутка вниз
+                document.querySelector('.pagination').classList.add('hidden');
+            } else {
+                // Прокрутка вгору
+                document.querySelector('.pagination').classList.remove('hidden');
+            }
+            
+            lastScrollTop = currentScroll <= 0 ? 0 : currentScroll; // Для мобільних пристроїв
+        });
+    </script>
+    
+    
+    
+{% endblock %}
