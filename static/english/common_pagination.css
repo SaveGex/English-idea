@@ -10,7 +10,7 @@
 }
 
 .pagination.hidden {
-    transform: translateY(-80px); /* Злегка переміщуємо вгору */
+    transform: translateY(-20px); /* Злегка переміщуємо вгору */
     opacity: 0.5; /* Зменшена прозорість */
 }
 

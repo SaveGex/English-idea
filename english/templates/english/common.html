@@ -2,13 +2,21 @@
 
 
 {% block navbar_addition %}
-    <a href="{% url 'English:create' %}" type="button" class="btn btn-dark">Create</a>
+    
+    <a id ="create" href="{% url 'English:create' %}" type="button" class="btn btn-dark">Create</a>
+    <style>
+        #create{
+            color: #e77e51;
+        }
+    </style>
 {% endblock %}
 
 
 {% block content %}
     {% load static %}
-    <link rel="stylesheet" href="{% static 'pagination.css' %}">
+    <link rel="stylesheet" href="{% static 'english/common_pagination.css' %}">
+    <link rel="stylesheet" href="{% static 'english/common_SCSSstyle.css' %}">
+
     {% if messages %}
             <div class="alert alert-info" role="alert">
                 {% for message in messages %}
@@ -19,25 +27,42 @@
     
 
     {% for page_obj in page %}
-        <div class="card text-bg-dark">
+        <div class="card text-bg-dark position-relative">
             <svg class="bd-placeholder-img bd-placeholder-img-lg card-img" width="100%" height="270" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Placeholder: Card image" preserveAspectRatio="xMidYMid slice" focusable="false"><title>Placeholder</title><rect width="100%" height="100%" fill="#868e96"></rect><text x="50%" y="50%" fill="#dee2e6" dy=".3em">{{page_obj.name}}</text></svg>
             <div class="card-img-overlay">
                 <p class="card-text">{{page_obj.sentence}}</p>
                 <p class="card-text"><small>{{page_obj.publish_date}}</small></p>
             </div>
+            <button type="button" class="btn btn-outline-light position-absolute bottom-10 end-10">Light</button>
         </div>
+
     {% endfor %}
 
     <div class="pagination">
-        <a href="#">&laquo;</a>
-        <a href="#">1</a>
-        <a href="#">2</a>
-        <a href="#">3</a>
-        <a href="#" class="active">4</a>
-        <a href="#">5</a>
-        <a href="#">6</a>
-        <a href="#">7</a>
-        <a href="#">&raquo;</a>
+        {% if page.has_previous %}
+            {% if page_previously3 %}
+                <a href="{% url 'English:common' page_previously3 %}" class="text-light">{{ page_previously3 }}</a>
+            {% endif %}
+            {% if page_previously2 %}
+                <a href="{% url 'English:common' page_previously2 %}" class="text-light">{{ page_previously2 }}</a>
+            {% endif %}
+            <a href="{% url 'English:common' page.previous_page_number %}" class="text-light">{{ page.previous_page_number }}</a>
+        {% endif %}
+    
+        <a href="#" class="active">{{ page_number }}</a>
+    
+        {% if page.has_next %}
+            <a href="{% url 'English:common' page.next_page_number %}" class="text-light">{{ page.next_page_number }}</a>
+            {% if page_subsequent2 %}
+                <a href="{% url 'English:common' page_subsequent2 %}" class="text-light">{{ page_subsequent2 }}</a>
+            {% endif %}
+            {% if page_subsequent3 %}
+                <a href="{% url 'English:common' page_subsequent3 %}" class="text-light">{{ page_subsequent3 }}</a>
+            {% endif %}
+        {% endif %}
+    </div>
+    
+        
     </div>
     <script>
         let lastScrollTop = 0; // Змінна для зберігання останньої позиції прокрутки

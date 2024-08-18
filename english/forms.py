@@ -4,7 +4,7 @@ from . import models
 
 class Create(forms.ModelForm):
     class Meta:
-        model = models.Model_Post
+        model = models.Task_Model
         exclude = ['publish_date']
         
         

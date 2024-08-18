@@ -1,0 +1,18 @@
+@for $i from 0 through 100 {
+    .bottom-#{$i} {
+      bottom: #{$i}px;
+    }
+    .end-#{$i} {
+      right: #{$i}px;
+    }
+  }
+  
+  // Позиціювання по вертикалі (top/bottom)
+  @for $i from 0 through 100 {
+    .top-#{$i} {
+      top: #{$i}px;
+    }
+    .start-#{$i} {
+      left: #{$i}px;
+    }
+  }

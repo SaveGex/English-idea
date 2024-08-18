@@ -2,4 +2,4 @@ from django.contrib import admin
 
 from . import models
 # Register your models here.
-admin.site.register(models.Model_Post)
+admin.site.register(models.Task_Model)
