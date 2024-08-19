@@ -18,6 +18,17 @@
         .modal_background {
             background-color: rgb(162 200 238) !important;
         }
+        /* Стили для выделения текста */
+        .highlight-start {
+            background-color: rgb(128, 128, 0); /* Стили для выделения текста между _ _ */
+        }
+        .highlight-end {
+            background-color: rgb(0, 135, 124);
+        }
+        .correct-word {
+            background-color: rgb(42, 118, 42); /* Стили для выделения текста между \ \ */
+            font-weight: bold;
+        }
     </style>
 {% endblock %}
 
@@ -32,35 +43,29 @@
         <div class="form-right-decoration"></div>
         <div class="circle"></div>
         <div class="form-inner">
-            <h3 id="create_post">Create post <button id = "grate" class="btn btn-primary" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasWithBothOptions" aria-controls="offcanvasWithBothOptions">#</button>
+            <h3 id="create_post">Create post <button id="grate" class="btn btn-primary" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasWithBothOptions" aria-controls="offcanvasWithBothOptions">#</button>
 
-                <div  class="offcanvas offcanvas-start modal_background " data-bs-scroll="true" tabindex="-1" id="offcanvasWithBothOptions" aria-labelledby="offcanvasWithBothOptionsLabel">
-                  <div class="offcanvas-header">
-                    <h5 class="" id="offcanvasWithBothOptionsLabel">{{head_instruction|safe}}</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
-                  </div>
-                  <div class=" p-3">
-                    <p>{{body_instruction|safe}}</p>
-                  </div>
-                </div></h3>
-            
-            
-           
+                <div class="offcanvas offcanvas-start modal_background" data-bs-scroll="true" tabindex="-1" id="offcanvasWithBothOptions" aria-labelledby="offcanvasWithBothOptionsLabel">
+                    <div class="offcanvas-header">
+                        <h5 class="" id="offcanvasWithBothOptionsLabel">{{head_instruction|safe}}</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+                    </div>
+                    <div class="p-3">
+                        <p>{{body_instruction|safe}}</p>
+                    </div>
+                </div>
+            </h3>
+
             {% if name_error %}
                 <div class="alert alert-warning alert-dismissible fade show" role="alert">
                     <strong>Name is required!</strong> {{name_error}}.
                     <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                 </div>
-            {% endif %}            
-            <input type="name" name = 'name' class="background-input" placeholder="Name of task" value="{{form_data.name}}">
-
-            {% if comment_error %}
-                <div class="alert alert-warning alert-dismissible fade show" role="alert">
-                    <strong>Comment is required!</strong> {{comment_error}}.
-                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                </div>
             {% endif %}
-            <input type="comment" name = "comment" class="background-input" placeholder="Write comment" value="{{form_data.comment}}">
+            <input type="name" name='name' class="background-input" placeholder="Name of task" value="{{form_data.name}}">
+
+            
+            <input type="comment" name="comment" class="background-input" placeholder="Write comment" value="{{form_data.comment}}">
 
             {% if sentence_error %}
                 <div class="alert alert-warning alert-dismissible fade show" role="alert">
@@ -68,15 +73,14 @@
                     <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                 </div>
             {% endif %}
-            {% comment %}<textarea id="text_area" name = "sentence" class="py-2 background-input" placeholder="Sentence..." rows="3">{{form_data.sentence}}</textarea>{% endcomment %}
             <div class="container">
                 <div id="highlightedText"></div>
-                <textarea id="text_area" name="sentence" placeholder="Sentence..."></textarea>
+                <textarea id="text_area" name="sentence" placeholder="Sentence...">{{form_data.sentence}}</textarea>
             </div>
             <input type="submit" value="Send">
-            
         </div>
     </form>
+
     {% block script %}
     <script>
         const textArea = document.getElementById('text_area');
@@ -94,6 +98,11 @@
             // Replace last _ with highlighted span
             highlighted = highlighted.replace(/_(.*?)$/, function(match, p1) {
                 return `<span class="highlight-end">${p1}</span>`;
+            });
+
+            // Replace text between \ with highlighted spans
+            highlighted = highlighted.replace(/\\(.*?)\\/g, function(match, p1) {
+                return `<span class="correct-word">${p1}</span>`;
             });
 
             return highlighted;

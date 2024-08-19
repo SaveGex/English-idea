@@ -11,7 +11,7 @@ from django.contrib import messages
 from django.views import generic
 
 from . import models, forms
-
+from english._func import formating
 class Index_View(generic.TemplateView):
     template_name = "English/common.html"
     paginate_by = 6
@@ -33,6 +33,7 @@ class Index_View(generic.TemplateView):
             page_subsequent2 = page_number+2
             if(page_number+3 <= paginator.num_pages):
                 page_subsequent3 = page_number+3
+                
 
         context.update({
                         'page': page,
@@ -57,11 +58,26 @@ class Create_View(generic.CreateView):
         mark_color = 'text-warning'
         context.update({
             'head_instruction': _("<span class='blockquote'>How it works? </span>"),
-            'body_instruction': _(f"<span class='text-success blockquote'<br>In field <span class='{mark_color}'>'Name of task'</span> you have to write name of task. <br/>In field <span class='{mark_color}'>'Comment'</span> you can write description of task. <br/>In field <span class='{mark_color}'>'Sentence'</span> you have to write sentence, and words which you want make field for answer mark that <span class='{mark_color}'><span class='text-danger'>_</span>your word<span class='text-danger'>_</span></span> and in form it will showed as field for input. </span>"),
+            'body_instruction': _(f"<span class='text-success blockquote'<br>In field <span class='{mark_color}'>'Name of task'</span> you have to write name of task. <br/>In field <span class='{mark_color}'>'Comment'</span> you can write description of task. <br/>In field <span class='{mark_color}'>'Sentence'</span> you have to write sentence, and words which you want will make fields for answer mark that <span class='{mark_color}'><span class='text-danger'>_</span>your word<span class='text-danger'>_</span></span> and in form it will showed as field for input. </span>"),
         })
         return context
     def form_valid(self, form: BaseModelForm) -> HttpResponse:
-        # Зберігаємо об'єкт форми та виконуємо перенаправлення
+        # якось обробити речення замінити  фраза яка починається з _ на поле інпут в хтмл і створити модель Answer_Model з певними полями.
+        response = super().form_valid(form)
+        task_model = form.instance  # Отримання екземпляра Task_Model
+
+        # Обробляємо речення та зберігаємо Answer_Model
+        sentence = form.cleaned_data["sentence"]
+        formatted_sentence = formating(sentence, task_model)
+
+        # Оновлюємо дані форми з відформатованим реченням
+        form.instance.sentence = formatted_sentence
+        form.instance.save()
+
+        # Зберігаємо Answer_Model для кожного сформованого запису
+        # Ось тут ви повинні викликати функцію формування Answer_Model
+        # (припустимо, що ваша функція формування та створення Answer_Model працює правильно)
+        answer_model = formating(sentence, task_model)
         messages.success(self.request, "Post created successfully")
         return super().form_valid(form)
 
@@ -69,19 +85,17 @@ class Create_View(generic.CreateView):
         context = self.get_context_data(form=form)
         form_data = form.data
 
-        name = comment = sentence = ''
+        name = sentence = ''
 
         if not form_data.get("name"):
             name = "Name cannot be empty"
-        if not form_data.get("comment"):
-            comment = "Comment cannot be empty"
+        
         if not form_data.get("sentence"):
             sentence = "Sentence cannot be empty"
 
         context.update({
             "form_data": form_data,
             "name_error": name,
-            "comment_error": comment,
             "sentence_error": sentence,
         })
         

@@ -5,6 +5,6 @@ from . import models
 class Create(forms.ModelForm):
     class Meta:
         model = models.Task_Model
-        exclude = ['publish_date']
+        fields = ['name', 'sentence']
         
         
