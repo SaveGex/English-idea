@@ -11,11 +11,17 @@ class Task_Model(models.Model):
         return self.name
 
 
-class Answer_Model(models.Model):
-    task = models.ForeignKey(Task_Model, on_delete=models.CASCADE, related_name='answers')
+class Answer_Wrong_Model(models.Model):
+    task = models.ForeignKey(Task_Model, on_delete=models.CASCADE, related_name='wrong_answers')
     will_showed = models.TextField(default=None)
-    correct_word = models.TextField(default=None)
     position_wrong = models.IntegerField(default=None)
+    def __str__(self):
+        return f"{self.will_showed} at position_wrong {self.position_wrong} in {self.task.name}"
+    
+    
+class Answer_Correct_Model(models.Model):
+    task = models.ForeignKey(Task_Model, on_delete=models.CASCADE, related_name='correct_answers')
+    correct_word = models.TextField(default=None)
     position_correct = models.IntegerField(default=None)
     def __str__(self):
-        return f"{self.correct_word} at position_wrong {self.position_wrong} and position_correct {self.position_correct} in {self.task.name}"
+        return f"{self.correct_word} at position_correct {self.position_correct} in {self.task.name}"

@@ -62,24 +62,22 @@ class Create_View(generic.CreateView):
         })
         return context
     def form_valid(self, form: BaseModelForm) -> HttpResponse:
-        # якось обробити речення замінити  фраза яка починається з _ на поле інпут в хтмл і створити модель Answer_Model з певними полями.
+        # Викликаємо збереження форми, яке зберігає Task_Model в базі даних
         response = super().form_valid(form)
-        task_model = form.instance  # Отримання екземпляра Task_Model
+
+        # Отримуємо збережений екземпляр Task_Model
+        task_model = form.instance
 
         # Обробляємо речення та зберігаємо Answer_Model
         sentence = form.cleaned_data["sentence"]
         formatted_sentence = formating(sentence, task_model)
 
-        # Оновлюємо дані форми з відформатованим реченням
-        form.instance.sentence = formatted_sentence
-        form.instance.save()
+        # Оновлюємо поле 'sentence' та зберігаємо Task_Model ще раз
+        task_model.sentence = formatted_sentence
+        task_model.save()
 
-        # Зберігаємо Answer_Model для кожного сформованого запису
-        # Ось тут ви повинні викликати функцію формування Answer_Model
-        # (припустимо, що ваша функція формування та створення Answer_Model працює правильно)
-        answer_model = formating(sentence, task_model)
         messages.success(self.request, "Post created successfully")
-        return super().form_valid(form)
+        return response
 
     def form_invalid(self, form: BaseModelForm, **kwargs: Any) -> HttpResponse:
         context = self.get_context_data(form=form)
@@ -100,3 +98,9 @@ class Create_View(generic.CreateView):
         })
         
         return self.render_to_response(context)
+
+
+
+class Execute_View(generic.UpdateView):
+    form_class = forms.Execute_Form
+    pass

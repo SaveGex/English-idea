@@ -27,15 +27,18 @@
     
 
     {% for page_obj in page %}
+    <form action="{% url 'English:execute' page_obj.id %}" method="post"></form>
         <div class="card text-bg-dark position-relative">
-            <svg class="bd-placeholder-img bd-placeholder-img-lg card-img" width="100%" height="270" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Placeholder: Card image" preserveAspectRatio="xMidYMid slice" focusable="false"><title>Placeholder</title><rect width="100%" height="100%" fill="#868e96"></rect><text x="50%" y="50%" fill="#dee2e6" dy=".3em">{{page_obj.name}}</text></svg>
+            <svg class="bd-placeholder-img bd-placeholder-img-lg card-img" width="100%" height="270" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Placeholder: Card image" preserveAspectRatio="xMidYMid slice" focusable="false"><title>Placeholder</title><rect width="100%" height="100%" fill="#868e96"></rect>
+                <text x="50%" y="50%" fill="#dee2e6" dy=".3em">{{ page_obj.name}}</text>
+            </svg>
             <div class="card-img-overlay">
-                <p class="card-text">{{page_obj.sentence}}</p>
+                <p class="card-text">{{page_obj.sentence|safe}}</p>
                 <p class="card-text"><small>{{page_obj.publish_date}}</small></p>
             </div>
-            <button href="{% url 'English:execute' page_obj.id %}" type="button" class="btn btn-outline-light position-absolute bottom-10 end-10">Execute</button>
+            <button  type="button" class="btn btn-outline-light position-absolute bottom-10 end-10">Execute</button>
         </div>
-
+    </form>
     {% endfor %}
 
     <div class="pagination">

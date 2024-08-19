@@ -7,4 +7,5 @@ class Create(forms.ModelForm):
         model = models.Task_Model
         fields = ['name', 'sentence']
         
-        
+class Execute_Form(forms.Form):
+    pass
