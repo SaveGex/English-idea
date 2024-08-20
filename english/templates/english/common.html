@@ -33,7 +33,7 @@
                 <text x="50%" y="50%" fill="#dee2e6" dy=".3em">{{ page_obj.name}}</text>
             </svg>
             <div class="card-img-overlay">
-                <p class="card-text">{{page_obj.sentence|safe}}</p>
+                <p class="card-text">{{page_obj.processed_sentence|safe}}</p>
                 <p class="card-text"><small>{{page_obj.publish_date}}</small></p>
             </div>
             <button  type="button" class="btn btn-outline-light position-absolute bottom-10 end-10">Execute</button>
