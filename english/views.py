@@ -11,14 +11,14 @@ from django.contrib import messages
 from django.views import generic
 
 from . import models, forms
-from english._func import formating
+from english._func import to_processed_of_text
 class Index_View(generic.TemplateView):
     template_name = "English/common.html"
     paginate_by = 6
     def get_context_data(self, **kwargs: Any) -> dict[str, Any]:
         context = super().get_context_data(**kwargs)
 
-        paginator = Paginator(models.Task_Model.objects.order_by("-publish_date"), per_page=3)
+        paginator = Paginator(models.Sentence.objects.order_by("-published_date"), per_page=3)
         page_number = kwargs.get("page_number")
         page = paginator.get_page(page_number)
         
@@ -62,19 +62,21 @@ class Create_View(generic.CreateView):
         })
         return context
     def form_valid(self, form: BaseModelForm) -> HttpResponse:
-        # Викликаємо збереження форми, яке зберігає Task_Model в базі даних
+        # Викликаємо збереження форми, яке зберігає Sentence_model в базі даних
         response = super().form_valid(form)
 
-        # Отримуємо збережений екземпляр Task_Model
-        task_model = form.instance
+        # Отримуємо збережений екземпляр Sentence_model
+        Sentence_model = form.instance
 
+        print(f"User sentence received: {form.cleaned_data['user_sentence']}")
+        
         # Обробляємо речення та зберігаємо Answer_Model
-        sentence = form.cleaned_data["sentence"]
-        formatted_sentence = formating(sentence, task_model)
+        user_sentence = form.cleaned_data["user_sentence"]
+        processed_sentence = to_processed_of_text(user_sentence, Sentence_model)
 
-        # Оновлюємо поле 'sentence' та зберігаємо Task_Model ще раз
-        task_model.sentence = formatted_sentence
-        task_model.save()
+        # Оновлюємо поле 'sentence' та зберігаємо Sentence_model ще раз
+        Sentence_model.processed_sentence = processed_sentence
+        Sentence_model.save()
 
         messages.success(self.request, "Post created successfully")
         return response

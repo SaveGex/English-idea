@@ -15,19 +15,26 @@
         decor{
             max-width: 800px;
         }
-        .modal_background {
-            background-color: rgb(162 200 238) !important;
-        }
-        /* Стили для выделения текста */
-        .highlight-start {
-            background-color: rgb(128, 128, 0); /* Стили для выделения текста между _ _ */
-        }
-        .highlight-end {
-            background-color: rgb(0, 135, 124);
-        }
-        .correct-word {
-            background-color: rgb(42, 118, 42); /* Стили для выделения текста между \ \ */
+        .highlight-ellipsis {
+            color: orange; /* Підсвічує три крапки оранжевим кольором */
             font-weight: bold;
+        }
+        
+        .highlight-text {
+            background-color: rgb(42, 118, 42); /* Стили для выделения текста между \ \ */
+            font-weight: bold; /* Виділяє текст жовтим */
+            font-weight: bold;
+            padding: 2px;
+            border-radius: 3px;
+        }
+        .input-like-div {
+            display: inline-block; /* Робить його інлайн-блоком */
+            border: 1px solid #ccc; /* Сірий обрамлення */
+            border-radius: 4px; /* Закруглені кути */
+            padding: 8px; /* Внутрішній відступ */
+            width: 100px; /* Ширина */
+            font-size: 13px; /* Розмір шрифту */
+            box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.1); /* Легка тінь */
         }
     </style>
 {% endblock %}
@@ -75,7 +82,7 @@
             {% endif %}
             <div class="container">
                 <div id="highlightedText"></div>
-                <textarea id="text_area" name="sentence" placeholder="Sentence...">{{form_data.sentence}}</textarea>
+                <textarea id="text_area" name="user_sentence" placeholder="Sentence...">{{form_data.user_sentence|default_if_none:""}}</textarea>
             </div>
             <input type="submit" value="Send">
         </div>
@@ -85,38 +92,57 @@
     <script>
         const textArea = document.getElementById('text_area');
         const highlightedText = document.getElementById('highlightedText');
-
+    
         function highlightText(text) {
             // Escape HTML special characters
             text = text.replace(/</g, '&lt;').replace(/>/g, '&gt;');
-
-            // Replace text between _ with highlighted spans
-            let highlighted = text.replace(/_(.*?)_/g, function(match, p1) {
-                return `<span class="highlight-start">${p1}</span>`;
+    
+            // Replace ... with a span that highlights them
+            text = text.replace(/\.\.\.\./g, function() {
+                return `<div class="input-like-div" >something...</div>`;
             });
-
-            // Replace last _ with highlighted span
-            highlighted = highlighted.replace(/_(.*?)$/, function(match, p1) {
-                return `<span class="highlight-end">${p1}</span>`;
+    
+            // Replace text between () with highlighted spans
+            // This regex will handle nested parentheses correctly
+            text = text.replace(/\(([^()]*)\)/g, function(match, p1) {
+                return `<span class="highlight-text">${p1}</span>`;
             });
-
-            // Replace text between \ with highlighted spans
-            highlighted = highlighted.replace(/\\(.*?)\\/g, function(match, p1) {
-                return `<span class="correct-word">${p1}</span>`;
-            });
-
-            return highlighted;
+    
+            // Handle nested parentheses manually
+            let startIdx = 0;
+            let openBrackets = 0;
+            let result = '';
+    
+            for (let i = 0; i < text.length; i++) {
+                if (text[i] === '(') {
+                    if (openBrackets === 0) {
+                        result += text.slice(startIdx, i);
+                        startIdx = i;
+                    }
+                    openBrackets++;
+                } else if (text[i] === ')') {
+                    openBrackets--;
+                    if (openBrackets === 0) {
+                        result += `<span class="highlight-text">${text.slice(startIdx + 1, i)}</span>`;
+                        startIdx = i + 1;
+                    }
+                }
+            }
+    
+            result += text.slice(startIdx);
+            return result;
         }
-
+    
         function updateHighlighting() {
             const text = textArea.value;
             highlightedText.innerHTML = highlightText(text);
         }
-
+    
         textArea.addEventListener('input', updateHighlighting);
-
+    
         // Sync initial text area value with highlightedText
         updateHighlighting();
     </script>
-    {% endblock %}
+    
+        {% endblock %}
 {% endblock %}

@@ -4,8 +4,8 @@ from . import models
 
 class Create(forms.ModelForm):
     class Meta:
-        model = models.Task_Model
-        fields = ['name', 'sentence']
+        model = models.Sentence
+        fields = ['name', 'comment', 'user_sentence']
         
 class Execute_Form(forms.Form):
     pass
