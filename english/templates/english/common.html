@@ -27,19 +27,44 @@
     
 
     {% for page_obj in page %}
-    <form action="{% url 'English:execute' page_obj.id %}" method="post"></form>
-        <div class="card text-bg-dark position-relative">
-            <svg class="bd-placeholder-img bd-placeholder-img-lg card-img" width="100%" height="270" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Placeholder: Card image" preserveAspectRatio="xMidYMid slice" focusable="false"><title>Placeholder</title><rect width="100%" height="100%" fill="#868e96"></rect>
-                <text x="50%" y="50%" fill="#dee2e6" dy=".3em">{{ page_obj.name}}</text>
-            </svg>
-            <div class="card-img-overlay">
-                <p class="card-text">{{page_obj.processed_sentence|safe}}</p>
-                <p class="card-text"><small>{{page_obj.publish_date}}</small></p>
-            </div>
-            <button  type="button" class="btn btn-outline-light position-absolute bottom-10 end-10">Execute</button>
+    <div class="card text-bg-dark position-relative">
+        <svg class="bd-placeholder-img bd-placeholder-img-lg card-img" width="100%" height="270" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Placeholder: Card image" preserveAspectRatio="xMidYMid slice" focusable="false"><title>Placeholder</title><rect width="100%" height="100%" fill="#868e96"></rect>
+            <text x="50%" y="50%" fill="#dee2e6" dy=".3em">{{ page_obj.name }}</text>
+        </svg>
+        <div class="card-img-overlay">
+            <p class="card-text">{{ page_obj.processed_sentence|safe }}</p>
+            <p class="card-text"><small>{{ page_obj.publish_date }}</small></p>
         </div>
-    </form>
-    {% endfor %}
+        <button type="button" class="btn btn-outline-danger position-absolute bottom-10 end-99" 
+                data-bs-toggle="modal" data-bs-target="#exampleModal"
+                data-id="{{ page_obj.pk }}">
+            Delete
+        </button>
+        <!-- Modal -->
+        <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h1 class="modal-title fs-5" id="exampleModalLabel">Delete?</h1>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        Deleted sentence: <span id="modal-sentence"></span>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                        <form id="delete-form" method="post" action="">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-danger">Delete</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <button type="button" class="btn btn-outline-light position-absolute bottom-10 end-10">Execute</button>
+    </div>
+{% endfor %}
+
 
     <div class="pagination">
         {% if page.has_previous %}
@@ -67,25 +92,47 @@
     
         
     </div>
-    <script>
-        let lastScrollTop = 0; // Змінна для зберігання останньої позиції прокрутки
-    
-        window.addEventListener("scroll", function() {
-            let currentScroll = window.pageYOffset || document.documentElement.scrollTop;
-    
-            // Перевіряємо напрямок прокручування
-            if (currentScroll > lastScrollTop) {
-                // Прокрутка вниз
-                document.querySelector('.pagination').classList.add('hidden');
-            } else {
-                // Прокрутка вгору
-                document.querySelector('.pagination').classList.remove('hidden');
-            }
-            
-            lastScrollTop = currentScroll <= 0 ? 0 : currentScroll; // Для мобільних пристроїв
-        });
-    </script>
     
     
     
+{% endblock %}
+
+{% block script %}
+<script>
+    let lastScrollTop = 0; // Змінна для зберігання останньої позиції прокрутки
+
+    window.addEventListener("scroll", function() {
+        let currentScroll = window.pageYOffset || document.documentElement.scrollTop;
+
+        // Перевіряємо напрямок прокручування
+        if (currentScroll > lastScrollTop) {
+            // Прокрутка вниз
+            document.querySelector('.pagination').classList.add('hidden');
+        } else {
+            // Прокрутка вгору
+            document.querySelector('.pagination').classList.remove('hidden');
+        }
+        
+        lastScrollTop = currentScroll <= 0 ? 0 : currentScroll; // Для мобільних пристроїв
+    });
+</script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+    var exampleModal = document.getElementById('exampleModal')
+    exampleModal.addEventListener('show.bs.modal', function(event) {
+        var button = event.relatedTarget
+        var id = button.getAttribute('data-id')
+        var processedSentence = button.getAttribute('data-processed-sentence')
+
+        // Update the modal content
+        var modalSentence = exampleModal.querySelector('#modal-sentence')
+        modalSentence.textContent = processedSentence
+
+        // Update the form action with the correct delete URL
+        var deleteForm = exampleModal.querySelector('#delete-form')
+        deleteForm.action = "{% url 'English:delete' 0 %}".replace('0', id)
+    })
+})
+</script>
+
 {% endblock %}

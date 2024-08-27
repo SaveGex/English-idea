@@ -69,17 +69,28 @@ class Create_View(generic.CreateView):
         Sentence_model = form.instance
 
         print(f"User sentence received: {form.cleaned_data['user_sentence']}")
-        
+
         # Обробляємо речення та зберігаємо Answer_Model
         user_sentence = form.cleaned_data["user_sentence"]
-        processed_sentence = to_processed_of_text(user_sentence, Sentence_model)
 
-        # Оновлюємо поле 'sentence' та зберігаємо Sentence_model ще раз
-        Sentence_model.processed_sentence = processed_sentence
+        # Збереження екземпляра, щоб бути впевненим, що він існує в базі даних
+        Sentence_model.save()
+
+        # Виконуємо обробку речення після збереження моделі
+        ready_model = to_processed_of_text(user_sentence, Sentence_model)
+
+        # Оновлюємо поля моделі, які залежать від результату обробки
+        Sentence_model.correct_sentence = ready_model.correct_sentence
+        Sentence_model.processed_sentence = ready_model.processed_sentence
+        Sentence_model.fields = ready_model.fields
+        Sentence_model.answers = ready_model.answers
+
+        # Зберігаємо модель знову з оновленими полями
         Sentence_model.save()
 
         messages.success(self.request, "Post created successfully")
         return response
+
 
     def form_invalid(self, form: BaseModelForm, **kwargs: Any) -> HttpResponse:
         context = self.get_context_data(form=form)
@@ -102,7 +113,17 @@ class Create_View(generic.CreateView):
         return self.render_to_response(context)
 
 
-
 class Execute_View(generic.UpdateView):
     form_class = forms.Execute_Form
     pass
+
+
+
+class Delete_View(generic.DeleteView):
+    model = models.Sentence
+    success_url = reverse_lazy('English:common', kwargs = {"page_number": 1})
+    template_name = 'english/common.html'
+
+    
+    def get_success_url(self) -> str:
+        return self.success_url  # Повертає успішний URL

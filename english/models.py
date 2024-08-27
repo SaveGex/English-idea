@@ -26,14 +26,14 @@ class Sentence(models.Model):
 
 class Wrong_Answer(models.Model):
     index = models.IntegerField()
-    text = models.ForeignKey(Sentence, on_delete=models.CASCADE)
+    key = models.ForeignKey(Sentence, on_delete=models.CASCADE)
     def __str__(self) -> str:
-        return f"text: {self.text}\n index: {self.index}"
+        return f"text: {self.key}\n index: {self.index}"
     
     
 class Correct_Answer(models.Model):
-    index = models.IntegerField()
-    text = models.ForeignKey(Sentence, on_delete=models.CASCADE)
+    index = models.IntegerField(null=True)
+    key = models.ForeignKey(Sentence, on_delete=models.CASCADE)
     phrase = models.CharField(max_length=301)
     def __str__(self) -> str:
-        return f"text: {self.text}\n index: {self.index}\n phrase: {self.phrase}"
+        return f"text: {self.key}\n index: {self.index}\n phrase: {self.phrase}"
