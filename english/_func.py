@@ -14,6 +14,14 @@ count_of_dots_in_Sfield = len(symbol_field)-1
 global_list_correct_model = []
 
 
+def delete_symbol_fields(text_HTML: str, indexs_words_list: list, i: int) -> str:
+    length = len(indexs_words_list) - i
+    for index in range(length):
+        text_HTML.pop(indexs_words_list[len(indexs_words_list)-index-1])
+    return text_HTML
+
+
+
 def change_name_for_field() -> str:
     global input_index_counter
     input_index_counter += 1
@@ -35,6 +43,8 @@ def processed_sentence_and_save(copy_text: str, Sentence: models.Sentence) -> st
     saved_answers = 0
     concat_list = []
     for num_sym, sym in enumerate(copy_text):
+        if saved_answers > count_fields or saved_answers == count_fields:
+            can_or_not = False
         if sym == symbol_word_start and find_start == False:
             start_index = start_text = num_sym + 1
             find_start = True
@@ -50,15 +60,15 @@ def processed_sentence_and_save(copy_text: str, Sentence: models.Sentence) -> st
             start_index = num_sym + 1
             index_indexs_words_list += 1
             
-            can_or_not = False if saved_answers == count_fields else True
             # can_or_not = False if saved_answers == len(indexs_words_list) else True
             '''if sudden wrote empty answer'''
         elif start_index == num_sym and ((sym == back_slash or sym == forward_slash) or sym == symbol_word_start) and find_start == True and can_or_not == True:
             start_index += 1
         elif sym == symbol_word_end and find_start == True:
-            if start_index != num_sym:
+            if start_index != num_sym and can_or_not == True:
                 speciment = models.Correct_Answer(index = 0, phrase = copy_text[start_index:num_sym].strip(), key = Sentence)
                 global_list_correct_model.append(speciment)
+                saved_answers += 1
             else:
                 start_index += 1
             find_start = False
@@ -113,17 +123,17 @@ def to_processed_of_text(text: str, Sentence: models.Sentence, index=0) -> model
     index = 0
 
     text_HTML = processed_sentence_and_save(text, Sentence).split()
-    correct_sentence = text_HTML.copy()
-
+    lenght = len(text_HTML)
     # Обробка тексту для збереження індексів
-    while index < len(text_HTML):
+    while index < lenght:
         word = text_HTML[index]
-        if symbol_field in word:
+        if symbol_field in word and index not in indexs_words_list:
             word = word.replace(symbol_field, f" {symbol_field} ").strip()
             text_HTML[index] = word
             text_HTML = " ".join(text_HTML).split()
-            addition_index = index + 1 if word != symbol_field else index
+            addition_index = index + 1 if not word.startswith(symbol_field) else index
             indexs_words_list.append(addition_index)
+        lenght = len(text_HTML)
         index += 1
 
     # Заміна індексів на поля введення
@@ -131,6 +141,11 @@ def to_processed_of_text(text: str, Sentence: models.Sentence, index=0) -> model
         if i < len(global_list_correct_model):
             field = change_name_for_field()
             text_HTML[idx] = field
+        else:
+            text_HTML = delete_symbol_fields(text_HTML, indexs_words_list, i)
+            break
+    
+    correct_sentence = text_HTML.copy()
 
     # Оновлення індексів правильних відповідей
     for i, obj in enumerate(global_list_correct_model):
@@ -142,11 +157,10 @@ def to_processed_of_text(text: str, Sentence: models.Sentence, index=0) -> model
         correct_sentence[obj.index] = obj.phrase
     
     # Оновлення моделі Sentence
-    Sentence.name = f"UniqueName_{Sentence.name}_{timezone.now()}"
+    Sentence.identifier = f"UniqueName_{Sentence.name}_{timezone.now()}"
     Sentence.correct_sentence = correct_sentence
     Sentence.processed_sentence = " ".join(text_HTML)
     Sentence.fields = len(indexs_words_list)
     Sentence.answers = len(global_list_correct_model)
     
     return Sentence
-

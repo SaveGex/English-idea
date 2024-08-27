@@ -1,6 +1,14 @@
 from django.test import TestCase
 from .models import Sentence, Correct_Answer
-from ._func import to_processed_of_text, processed_sentence_and_save, processed_sentence_without_save, symbol_field
+from ._func import (
+    to_processed_of_text, 
+    processed_sentence_and_save, 
+    processed_sentence_without_save, 
+    symbol_field, 
+    symbol_word_end, 
+    symbol_word_start, 
+    global_list_correct_model
+)
 
 class YourFunctionsTestCase(TestCase):
     
@@ -19,14 +27,14 @@ class YourFunctionsTestCase(TestCase):
         text = "This is a (correct) sentence."
         result = processed_sentence_and_save(text, self.model_sentence)
         
-        # Перевіряємо, що оброблений текст не містить правильної відповіді
+        # Перевіряємо, що правильна відповідь була видалена
         self.assertNotIn("(correct)", result)
 
-        # Перевіряємо, що екземпляр моделі зберігся лише один раз
-        sentence_count = Sentence.objects.count()
-        self.assertEqual(sentence_count, 1)
+        # Перевіряємо, що об'єкти Correct_Answer збережені правильно
+        self.assertEqual(len(global_list_correct_model), 1, "Повинна бути одна правильна відповідь.")
+        self.assertEqual(global_list_correct_model[0].phrase, "correct", "Неправильно збережена фраза.")
 
-        # Перевіряємо, що збережений екземпляр має правильне значення user_sentence
+        # Перевіряємо, що екземпляр Sentence зберігся правильно
         saved_sentence = Sentence.objects.first()
         self.assertEqual(saved_sentence.user_sentence, "it'....s(my name) word which....(/bonk) (\\inner)....")
 
@@ -37,7 +45,9 @@ class YourFunctionsTestCase(TestCase):
         
         # Перевіряємо, що правильна відповідь була видалена
         self.assertNotIn("(correct)", result)
-        # self.assertIn(symbol_field, result)
+
+        # Перевіряємо, що фраза "(correct)" видалена з тексту
+        self.assertIn(symbol_field, result)
 
     def test_to_processed_of_text(self):
         text = "This is a (correct) sentence with .... a field."
@@ -73,19 +83,32 @@ class YourFunctionsTestCase(TestCase):
         self.assertEqual(result.fields, 2, "Кількість полів не відповідає очікуваній.")
     
     def test_correct_answer_mapping(self):
-        text = f"This is a {symbol_field} test sentence with {symbol_field} symbols."
-        correct_answer = Correct_Answer.objects.create(
-            key=self.model_sentence, 
-            phrase="test",
-            index=0
-        )
-        global_list_correct_model = [correct_answer]
+        # Приклад тексту з правильними відповідями
+        text = f"This is a {symbol_word_start}correct{symbol_word_end} test sentence with {symbol_word_start}another{symbol_word_end} correct answer."
+
+        # Виклик функції для обробки тексту та створення моделі Sentence
+        processed_sentence = to_processed_of_text(text, self.model_sentence)
         
-        result = to_processed_of_text(text, self.model_sentence)
-        
-        # Перевірка, що правильні відповіді зберігаються з коректними індексами
-        correct_answer.refresh_from_db()
-        self.assertEqual(correct_answer.index, 3, "Індекс правильного слова збережено некоректно.")
+        # Перевірка правильних відповідей до збереження в базі даних
+        for i, correct_answer in enumerate(global_list_correct_model):
+            self.assertEqual(correct_answer.index, i, "Індекс правильного слова в списку обчислено некоректно.")
+            self.assertEqual(correct_answer.phrase, ["correct", "another"][i], "Фраза правильного слова збережена некоректно.")
+
+        # Тепер збережемо всі об'єкти в базі даних
+        for correct_answer in global_list_correct_model:
+            correct_answer.save()
+
+        # Перевірка збережених значень у базі даних
+        correct_answer_in_db = Correct_Answer.objects.get(key=self.model_sentence, phrase="correct")
+        self.assertEqual(correct_answer_in_db.index, 0, "Індекс правильного слова 'correct' збережено некоректно.")
+
+        correct_answer_in_db = Correct_Answer.objects.get(key=self.model_sentence, phrase="another")
+        self.assertEqual(correct_answer_in_db.index, 1, "Індекс правильного слова 'another' збережено некоректно.")
+
+        # Перевірка кінцевого стану моделі Sentence
+        self.assertEqual(processed_sentence.fields, 2, "Кількість полів введення збережена некоректно.")
+        self.assertEqual(processed_sentence.answers, 2, "Кількість правильних відповідей збережена некоректно.")
+
 
     def tearDown(self):
         # Чистимо базу даних після тестів
